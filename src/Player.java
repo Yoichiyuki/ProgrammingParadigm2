@@ -1,13 +1,18 @@
 import java.awt.*;
-import javax.swing.ImageIcon;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 
 public class Player {
 
     int x;
     int y;
-    int width = 40;
-    int height = 40;
-    int speed = 5;
+    int width = 96;
+    int height = 128;
+    final int FRAME_WIDTH = 48;
+    final int FRAME_HEIGHT = 64;
+    double speed = 3.75;
     Color color;
     int maxHP = 100;
     int hp = 100;
@@ -22,13 +27,25 @@ public class Player {
     // ============================================
     // PLAYER SPRITES
     // ============================================
+    int animationFrame = 0;
+    int animationCounter = 0;
 
-    Image idleSprite;
-    Image walkSprite;
-    Image shootSprite;
+    int shootTimer = 0;
+    boolean shooting = false;
+    BufferedImage idle;
+    BufferedImage walkDown;
+    BufferedImage walkUp;
+    BufferedImage walkLeft;
+    BufferedImage walkLeftDown;
+    BufferedImage walkLeftUp;
+    BufferedImage walkRight;
+    BufferedImage walkRightDown;
+    BufferedImage walkRightUp;
 
-    // Current sprite being used
-    Image currentSprite;
+    BufferedImage currentAnimation;
+    BufferedImage currentFrame;
+
+    
 
     // ============================================
     // MOVEMENT FLAGS
@@ -49,8 +66,7 @@ public class Player {
     // CONSTRUCTOR
     // ============================================
 
-    public Player(int x, int y, Color color, int bulletDirection,
-        String idlePath, String walkPath, String shootPath) {
+    public Player(int x, int y, Color color, int bulletDirection) {
 
         this.x = x;
         this.y = y;
@@ -61,13 +77,43 @@ public class Player {
         // ============================================
         // LOAD SPRITES
         // ============================================
+        try {
+            idle = ImageIO.read(new File("assets/walk.png"));
+            walkDown = ImageIO.read(new File("assets/walk_Down.png"));
+            walkUp = ImageIO.read(new File("assets/walk_Up.png"));
 
-        idleSprite = new ImageIcon(idlePath).getImage();
-        walkSprite = new ImageIcon(walkPath).getImage();
-        shootSprite = new ImageIcon(shootPath).getImage();
-        // Default sprite
-        currentSprite = idleSprite;
+            walkLeft = ImageIO.read(new File("assets/walk_Left.png"));
 
+            walkLeftDown = ImageIO.read(
+                new File("assets/walk_Left_Down.png")
+            );
+
+            walkLeftUp = ImageIO.read(
+                new File("assets/walk_Left_Up.png")
+            );
+
+            walkRight = ImageIO.read(new File("assets/walk_Right.png"));
+
+            walkRightDown = ImageIO.read(
+                new File("assets/walk_Right_Down.png")
+            );
+
+            walkRightUp = ImageIO.read(
+                new File("assets/walk_Right_Up.png")
+            );
+
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        currentAnimation = idle;
+        currentFrame = currentAnimation.getSubimage(
+        0,
+        0,
+        FRAME_WIDTH,
+        FRAME_HEIGHT
+    );
     }
 
     // ============================================
@@ -90,6 +136,53 @@ public class Player {
         }
         if (right) {
             x += speed;
+        }
+
+        // ============================================
+        // SELECT CURRENT ANIMATION
+        // ============================================
+
+        // Idle
+        currentAnimation = idle;
+
+        // Down
+        if (down && !left && !right) {
+            currentAnimation = walkDown;
+        }
+
+        // Up
+        if (up && !left && !right) {
+            currentAnimation = walkUp;
+        }
+
+        // Left ONLY
+        if (left && !up && !down) {
+            currentAnimation = walkLeft;
+        }
+
+        // Right ONLY
+        if (right && !up && !down) {
+            currentAnimation = walkRight;
+        }
+
+        // Left Down
+        if (left && down) {
+            currentAnimation = walkLeftDown;
+        }
+
+        // Left Up
+        if (left && up) {
+            currentAnimation = walkLeftUp;
+        }
+
+        // Right Down
+        if (right && down) {
+            currentAnimation = walkRightDown;
+        }
+
+        // Right Up
+        if (right && up) {
+            currentAnimation = walkRightUp;
         }
 
         // ============================================
@@ -123,20 +216,28 @@ public class Player {
         }
 
         // ============================================
-        // ANIMATION STATE
+        // ANIMATION LOOP
         // ============================================
 
-        // Walking
-        if (up || down || left || right) {
+        animationCounter++;
 
-            currentSprite = walkSprite;
+        if (animationCounter >= 10) {
+
+            animationFrame++;
+
+            if (animationFrame >= 8) {
+                animationFrame = 0;
+            }
+
+            animationCounter = 0;
         }
 
-        // Idle
-        else {
-
-            currentSprite = idleSprite;
-        }
+        currentFrame = currentAnimation.getSubimage(
+            animationFrame * FRAME_WIDTH,
+            0,
+            FRAME_WIDTH,
+            FRAME_HEIGHT
+        );
 
     }
 
@@ -147,7 +248,7 @@ public class Player {
     public void draw(Graphics2D g2) {
 
         g2.drawImage(
-                currentSprite,
+                currentFrame,
                 x,
                 y,
                 width,
@@ -162,11 +263,14 @@ public class Player {
 
     public Bullet shoot() {
         
-        currentSprite = shootSprite;
+
         // Cannot shoot if no bullets
         if (bulletsLeft <= 0) {
             return null;
         }
+
+        shooting = true;
+        shootTimer = 15;
 
         // Reduce ammo
         bulletsLeft--;
@@ -191,7 +295,12 @@ public class Player {
     // PLAYER HITBOX
     // ============================================
     public Rectangle getBounds() {
-        return new Rectangle(x, y, width, height);
+         return new Rectangle(
+        x + 34,
+        y + 38,
+        30,
+        48
+    );
     }
 
     // ============================================

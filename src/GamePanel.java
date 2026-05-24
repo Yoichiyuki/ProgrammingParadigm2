@@ -16,23 +16,17 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     // CREATE PLAYERS
     // ============================================
     Player player1 = new Player(
-            100,
-            HEIGHT / 2 - 20,
-            Color.BLUE,
-            1,
-            "assets/player1_idle.png",
-            "assets/player1_walk.png",
-            "assets/player1_shoot.png"
+        100,
+        HEIGHT / 2 - 20,
+        Color.BLUE,
+        1
     );
     
-    Player player2 = new Player(
-            660,
-            HEIGHT / 2 - 20,
-            Color.RED,
-            -1,
-            "assets/player2_idle.png",
-            "assets/player2_walk.png",
-            "assets/player2_shoot.png"
+        Player player2 = new Player(
+        660,
+        HEIGHT / 2 - 20,
+        Color.RED,
+        -1
     );
 
     // ============================================
