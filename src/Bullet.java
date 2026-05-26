@@ -30,7 +30,7 @@ public class Bullet {
     // ============================================
     public Bullet(int x, int y, int direction, Player owner) {
 
-        this.x = x;
+        this.x = x - 40;
         this.y = y;
         this.direction = direction;
 

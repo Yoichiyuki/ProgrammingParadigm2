@@ -286,7 +286,7 @@ public class Player {
 
         // RIGHT PLAYER
         else {
-            bulletX = x - 10;
+            bulletX = x + 80;
         }
         return new Bullet(bulletX, bulletY, bulletDirection, this);
     }
