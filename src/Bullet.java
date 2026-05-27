@@ -2,36 +2,34 @@ import java.awt.*;
 
 public class Bullet {
 
-    // Bullet position
     int x;
     int y;
 
-    // Bullet size
     int width = 12;
     int height = 6;
 
-    // Bullet movement speed
     int speed = 10;
 
-    // Direction
-    // 1 = RIGHT
-    // -1 = LEFT
     int direction;
 
-    // Bullet owner
-    // Used so players don't damage themselves
     Player owner;
 
-    // Bullet active state
     boolean active = true;
 
     // ============================================
     // CONSTRUCTOR
     // ============================================
-    public Bullet(int x, int y, int direction, Player owner) {
+
+    public Bullet(
+            int x,
+            int y,
+            int direction,
+            Player owner
+    ) {
 
         this.x = x - 40;
-        this.y = y;
+        this.y = y - 20;
+
         this.direction = direction;
 
         this.owner = owner;
@@ -40,11 +38,13 @@ public class Bullet {
     // ============================================
     // UPDATE BULLET
     // ============================================
-    public void update() {
-        // Move bullet horizontally
+
+    public void update(boolean paused) {
+
+        if (paused) return;
+
         x += speed * direction;
 
-        // Remove bullet if outside screen
         if (x < -50 || x > 850) {
             active = false;
         }
@@ -53,17 +53,30 @@ public class Bullet {
     // ============================================
     // DRAW BULLET
     // ============================================
+
     public void draw(Graphics2D g2) {
 
         g2.setColor(Color.YELLOW);
 
-        g2.fillRect(x, y, width, height);
+        g2.fillRect(
+                x,
+                y,
+                width,
+                height
+        );
     }
 
     // ============================================
-    // COLLISION BOX
+    // BULLET HITBOX
     // ============================================
+
     public Rectangle getBounds() {
-        return new Rectangle(x, y, width, height);
+
+        return new Rectangle(
+                x,
+                y,
+                width,
+                height
+        );
     }
 }

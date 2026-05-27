@@ -1,220 +1,215 @@
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import javax.imageio.ImageIO;
 
 public class Player {
 
     int x;
     int y;
+
     int width = 96;
     int height = 128;
+
     final int FRAME_WIDTH = 48;
     final int FRAME_HEIGHT = 64;
+
     double speed = 3.75;
+
     Color color;
+
     int maxHP = 100;
     int hp = 100;
+
     int maxBullets = 8;
     int bulletsLeft = 8;
-    // 2 seconds cooldown
+
+    // ============================================
+    // RELOAD SYSTEM
+    // ============================================
+    long gameTime = 0;
     long cooldown = 2000;
 
-    // Stores last reload time
-    long lastReloadTime = System.currentTimeMillis();
+    long lastReloadTime = 0;
 
     // ============================================
     // PLAYER SPRITES
     // ============================================
+
     int animationFrame = 0;
     int animationCounter = 0;
 
     int shootTimer = 0;
-    boolean shooting = false;
-    BufferedImage idle;
-    BufferedImage walkDown;
-    BufferedImage walkUp;
-    BufferedImage walkLeft;
-    BufferedImage walkLeftDown;
-    BufferedImage walkLeftUp;
-    BufferedImage walkRight;
-    BufferedImage walkRightDown;
-    BufferedImage walkRightUp;
+
+    CharacterSprites sprites;
 
     BufferedImage currentAnimation;
+    BufferedImage previousAnimation;
+
     BufferedImage currentFrame;
 
-    
+    boolean shooting = false;
 
     // ============================================
     // MOVEMENT FLAGS
     // ============================================
+
     boolean up;
     boolean down;
     boolean left;
     boolean right;
 
     // ============================================
-    // PLAYER DIRECTION
+    // BULLET DIRECTION
     // ============================================
-    // LEFT PLAYER shoots RIGHT
-    // RIGHT PLAYER shoots LEFT
+
     int bulletDirection;
 
     // ============================================
     // CONSTRUCTOR
     // ============================================
 
-    public Player(int x, int y, Color color, int bulletDirection) {
+    public Player(
+            int x,
+            int y,
+            Color color,
+            int bulletDirection,
+            CharacterSprites sprites
+    ) {
 
         this.x = x;
         this.y = y;
+
         this.color = color;
+
         this.bulletDirection = bulletDirection;
 
+        this.sprites = sprites;
 
-        // ============================================
-        // LOAD SPRITES
-        // ============================================
-        try {
-            idle = ImageIO.read(new File("assets/walk.png"));
-            walkDown = ImageIO.read(new File("assets/walk_Down.png"));
-            walkUp = ImageIO.read(new File("assets/walk_Up.png"));
+        currentAnimation = sprites.idle;
 
-            walkLeft = ImageIO.read(new File("assets/walk_Left.png"));
+        previousAnimation = currentAnimation;
 
-            walkLeftDown = ImageIO.read(
-                new File("assets/walk_Left_Down.png")
-            );
-
-            walkLeftUp = ImageIO.read(
-                new File("assets/walk_Left_Up.png")
-            );
-
-            walkRight = ImageIO.read(new File("assets/walk_Right.png"));
-
-            walkRightDown = ImageIO.read(
-                new File("assets/walk_Right_Down.png")
-            );
-
-            walkRightUp = ImageIO.read(
-                new File("assets/walk_Right_Up.png")
-            );
-
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        currentAnimation = idle;
         currentFrame = currentAnimation.getSubimage(
-        0,
-        0,
-        FRAME_WIDTH,
-        FRAME_HEIGHT
-    );
+                0,
+                0,
+                FRAME_WIDTH,
+                FRAME_HEIGHT
+        );
     }
 
     // ============================================
     // UPDATE PLAYER
     // ============================================
 
-    public void update() {
+    public void update(boolean paused) {
 
-        // ============================
+        // ============================================
         // MOVEMENT
-        // ============================
-        if (up) {
-            y -= speed;
-        }
-        if (down) {
-            y += speed;
-        }
-        if (left) {
-            x -= speed;
-        }
-        if (right) {
-            x += speed;
-        }
+        // ============================================
+        if (paused) return;
+        gameTime += 16; // approx 60 FPS
+
+        if (up) y -= speed;
+        if (down) y += speed;
+        if (left) x -= speed;
+        if (right) x += speed;
 
         // ============================================
         // SELECT CURRENT ANIMATION
         // ============================================
 
-        // Idle
-        currentAnimation = idle;
+        if (shooting) {
 
-        // Down
-        if (down && !left && !right) {
-            currentAnimation = walkDown;
+            currentAnimation = sprites.shootin;
+
+            shootTimer--;
+
+            if (shootTimer <= 0) {
+                shooting = false;
+            }
         }
 
-        // Up
-        if (up && !left && !right) {
-            currentAnimation = walkUp;
+        else if (down && !left && !right) {
+            currentAnimation = sprites.walkDown;
         }
 
-        // Left ONLY
-        if (left && !up && !down) {
-            currentAnimation = walkLeft;
+        else if (up && !left && !right) {
+            currentAnimation = sprites.walkUp;
         }
 
-        // Right ONLY
-        if (right && !up && !down) {
-            currentAnimation = walkRight;
+        else if (left && !up && !down) {
+            currentAnimation = sprites.walkLeft;
         }
 
-        // Left Down
-        if (left && down) {
-            currentAnimation = walkLeftDown;
+        else if (right && !up && !down) {
+            currentAnimation = sprites.walkRight;
         }
 
-        // Left Up
-        if (left && up) {
-            currentAnimation = walkLeftUp;
+        else if (left && down) {
+            currentAnimation = sprites.walkLeftDown;
         }
 
-        // Right Down
-        if (right && down) {
-            currentAnimation = walkRightDown;
+        else if (left && up) {
+            currentAnimation = sprites.walkLeftUp;
         }
 
-        // Right Up
-        if (right && up) {
-            currentAnimation = walkRightUp;
+        else if (right && down) {
+            currentAnimation = sprites.walkRightDown;
+        }
+
+        else if (right && up) {
+            currentAnimation = sprites.walkRightUp;
+        }
+
+        else {
+            currentAnimation = sprites.idle;
+        }
+
+        // ============================================
+        // RESET ANIMATION WHEN CHANGING STATES
+        // ============================================
+
+        if (currentAnimation != previousAnimation) {
+
+            animationFrame = 0;
+            animationCounter = 0;
+
+            previousAnimation = currentAnimation;
         }
 
         // ============================================
         // SCREEN BOUNDARIES
-        // Prevent players from leaving screen
         // ============================================
 
         if (x < 0) {
             x = 0;
         }
+
         if (x + width > 800) {
             x = 800 - width;
         }
+
         if (y < 0) {
             y = 0;
         }
+
         if (y + height > 600) {
             y = 600 - height;
         }
 
         // ============================================
-        // BULLET RELOAD SYSTEM
-        // Every 2 seconds, restore 1 bullet
+        // RELOAD SYSTEM
         // ============================================
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastReloadTime >= cooldown) {
-            if (bulletsLeft < maxBullets) {
-                bulletsLeft++;
-                lastReloadTime = currentTime;
-            }
+        if (lastReloadTime == 0) {
+            lastReloadTime = gameTime;
         }
 
+        if (gameTime - lastReloadTime >= cooldown) {
+
+            if (bulletsLeft < maxBullets) {
+                bulletsLeft++;
+                lastReloadTime = gameTime;
+            }
+        }
         // ============================================
         // ANIMATION LOOP
         // ============================================
@@ -225,20 +220,34 @@ public class Player {
 
             animationFrame++;
 
-            if (animationFrame >= 8) {
+            int totalFrames =
+                    currentAnimation.getWidth() / FRAME_WIDTH;
+
+            if (animationFrame >= totalFrames) {
                 animationFrame = 0;
             }
 
             animationCounter = 0;
         }
 
-        currentFrame = currentAnimation.getSubimage(
-            animationFrame * FRAME_WIDTH,
-            0,
-            FRAME_WIDTH,
-            FRAME_HEIGHT
-        );
+        // ============================================
+        // GET CURRENT FRAME
+        // ============================================
 
+        int frameX = animationFrame * FRAME_WIDTH;
+
+        if (frameX + FRAME_WIDTH > currentAnimation.getWidth()) {
+
+            frameX = 0;
+            animationFrame = 0;
+        }
+
+        currentFrame = currentAnimation.getSubimage(
+                frameX,
+                0,
+                FRAME_WIDTH,
+                FRAME_HEIGHT
+        );
     }
 
     // ============================================
@@ -258,68 +267,72 @@ public class Player {
     }
 
     // ============================================
-    // CREATE BULLET
+    // SHOOT BULLET
     // ============================================
 
-    public Bullet shoot() {
-        
-
-        // Cannot shoot if no bullets
+    public Bullet shoot(Boolean paused) {
+        if (paused) return null;
         if (bulletsLeft <= 0) {
             return null;
         }
 
         shooting = true;
+
         shootTimer = 15;
 
-        // Reduce ammo
+        animationFrame = 0;
+        animationCounter = 0;
+
         bulletsLeft--;
 
-        // Bullet spawn position
         int bulletX;
+
         int bulletY = y + height / 2;
-        // LEFT PLAYER
+
         if (bulletDirection == 1) {
 
             bulletX = x + width;
         }
 
-        // RIGHT PLAYER
         else {
+
             bulletX = x + 80;
         }
-        return new Bullet(bulletX, bulletY, bulletDirection, this);
+
+        return new Bullet(
+                bulletX,
+                bulletY,
+                bulletDirection,
+                this
+        );
     }
 
     // ============================================
     // PLAYER HITBOX
     // ============================================
+
     public Rectangle getBounds() {
-         return new Rectangle(
-        x + 34,
-        y + 38,
-        30,
-        48
-    );
+
+        return new Rectangle(
+                x + 34,
+                y + 38,
+                30,
+                48
+        );
     }
 
     // ============================================
-    // GET COOLDOWN PERCENT
-    // Used for cooldown bar
+    // COOLDOWN PERCENT
     // ============================================
 
     public double getCooldownPercent() {
 
-        long currentTime = System.currentTimeMillis();
+        long elapsed = gameTime - lastReloadTime;
 
-        long elapsed = currentTime - lastReloadTime;
-
-        // Clamp value so it doesn't exceed cooldown
         if (elapsed > cooldown) {
             elapsed = cooldown;
         }
 
-        // Convert to percentage
         return (double) elapsed / cooldown;
     }
 }
