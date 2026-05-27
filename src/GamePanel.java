@@ -7,27 +7,44 @@ import javax.swing.*;
 
 public class GamePanel extends JPanel implements Runnable, KeyListener {
 
-
+    // ============================================
+    // GAME STATE
+    // ============================================
     PauseMenu pauseMenu;
     boolean paused = false;
-
-    Image backgroundImage;
-    final int WIDTH = 800;
-    final int HEIGHT = 600;
-
-    Thread gameThread;
-
-    CharacterSprites bato;
-
-    Player player1;
-    Player player2;
-
-    ArrayList<Bullet> bullets = new ArrayList<>();
 
     boolean gameOver = false;
     String winnerText = "";
 
+    // ============================================
+    // SCREEN SETTINGS
+    // ============================================
+    Image backgroundImage;
+    final int WIDTH = 800;
+    final int HEIGHT = 600;
+
+    // ============================================
+    // THREAD
+    // ============================================
+    Thread gameThread;
+
+    // ============================================
+    // SPRITES
+    // ============================================
+    CharacterSprites bato, placeholder;
+    Rectangle divider;
+    // ============================================
+    // ENTITIES
+    // ============================================
+    Player player1;
+    Player player2;
+    ArrayList<Bullet> bullets = new ArrayList<>();
+
+    // ============================================
+    // CONSTRUCTOR
+    // ============================================
     public GamePanel() {
+
         pauseMenu = new PauseMenu(this);
         this.setLayout(null);
         this.add(pauseMenu);
@@ -36,32 +53,52 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         this.setBackground(Color.BLACK);
         this.setFocusable(true);
         this.addKeyListener(this);
-
+  
+        divider = new Rectangle(WIDTH / 2 - 5, 0, 10, HEIGHT);
+        
         backgroundImage = new ImageIcon("assets/backGround.png").getImage();
 
         try {
 
             bato = new CharacterSprites(
-                ImageIO.read(new File("assets/bato-idle.png")),
-                ImageIO.read(new File("assets/bato-walk_Down.png")),
-                ImageIO.read(new File("assets/bato-walk_Up.png")),
-                ImageIO.read(new File("assets/bato-walk_Left.png")),
-                ImageIO.read(new File("assets/bato-walk_Right.png")),
-                ImageIO.read(new File("assets/bato-walk_Left_Down.png")),
-                ImageIO.read(new File("assets/bato-walk_Left_Up.png")),
-                ImageIO.read(new File("assets/bato-walk_Right_Down.png")),
-                ImageIO.read(new File("assets/bato-walk_Right_Up.png")),
-                ImageIO.read(new File("assets/bato-shoot.png"))
+                ImageIO.read(new File("assets/Bato/bato-idle2.png")),
+                ImageIO.read(new File("assets/Bato/bato-walkdown2.png")),
+                ImageIO.read(new File("assets/Bato/bato-walk_Up.png")),
+                ImageIO.read(new File("assets/Bato/bato-walk_Left.png")),
+                ImageIO.read(new File("assets/Bato/bato-walk_Right.png")),
+                ImageIO.read(new File("assets/Bato/bato-walk_Left_Down.png")),
+                ImageIO.read(new File("assets/Bato/bato-walk_Left_Up.png")),
+                ImageIO.read(new File("assets/Bato/bato-walk_Right_Down.png")),
+                ImageIO.read(new File("assets/Bato/bato-walk_Right_Up.png")),
+                ImageIO.read(new File("assets/Bato/bato-shoot.png"))
             );
 
+            placeholder = new CharacterSprites(
+                ImageIO.read(new File("assets/PlaceHolder/idle.png")),
+                ImageIO.read(new File("assets/PlaceHolder/walk_Down.png")),
+                ImageIO.read(new File("assets/PlaceHolder/walk_Up.png")),
+                ImageIO.read(new File("assets/PlaceHolder/walk_Left.png")),
+                ImageIO.read(new File("assets/PlaceHolder/walk_Right.png")),
+                ImageIO.read(new File("assets/PlaceHolder/walk_Left_Down.png")),
+                ImageIO.read(new File("assets/PlaceHolder/walk_Left_Up.png")),
+                ImageIO.read(new File("assets/PlaceHolder/walk_Right_Down.png")),
+                ImageIO.read(new File("assets/PlaceHolder/walk_Right_Up.png")),
+                ImageIO.read(new File("assets/PlaceHolder/idle.png"))
+            );
+
+
+
             player1 = new Player(100, 300, Color.BLUE, 1, bato);
-            player2 = new Player(700, 300, Color.RED, -1, bato);
+            player2 = new Player(700, 300, Color.RED, -1, placeholder);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    // ============================================
+    // GAME LOOP START
+    // ============================================
     public void startGameThread() {
         gameThread = new Thread(this);
         gameThread.start();
@@ -82,11 +119,15 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         }
     }
 
+    // ============================================
+    // UPDATE GAME STATE
+    // ============================================
     public void update(boolean paused) {
+
         if (gameOver || paused) return;
 
-        player1.update(paused);
-        player2.update(paused);
+        player1.update(paused, divider);
+        player2.update(paused, divider);
 
         for (int i = 0; i < bullets.size(); i++) {
             Bullet b = bullets.get(i);
@@ -119,6 +160,9 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         }
     }
 
+    // ============================================
+    // RENDER
+    // ============================================
     @Override
     protected void paintComponent(Graphics g) {
 
@@ -132,15 +176,13 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
         player1.draw(g2);
         player2.draw(g2);
-    
+
         for (Bullet b : bullets) {
             b.draw(g2);
         }
-        
-        
-         drawHUD(g2, player1, 20, 20);
-         drawHUD(g2, player2, 580, 20);
-        
+
+        drawHUD(g2, player1, 20, 20, false);
+        drawHUD(g2, player2, WIDTH - 20 - 260, 20, true);
 
         if (gameOver) {
             g2.setColor(Color.WHITE);
@@ -149,9 +191,12 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         }
     }
 
-    public void drawHUD(Graphics2D g2, Player p, int x, int y) {
+    // ============================================
+    // HUD (HP / BULLETS / COOLDOWN)
+    // ============================================
+    public void drawHUD(Graphics2D g2, Player p, int x, int y, boolean flipped) {
 
-        int w = 180, h = 18;
+        int w = 260, h = 20;
 
         g2.setColor(Color.DARK_GRAY);
         g2.fillRect(x, y, w, h);
@@ -166,13 +211,19 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
         for (int i = 0; i < p.maxBullets; i++) {
 
-            g2.setColor(i < p.bulletsLeft ? Color.YELLOW : Color.GRAY);
+            int drawX;
 
-            g2.fillRect(x + i * (bs + sp), by, bs, bs);
+            if (!flipped) {
+                drawX = x + i * (bs + sp); // normal (Player 1)
+            } else {
+                drawX = x + (p.maxBullets - 1 - i) * (bs + sp); // mirrored (Player 2)
+            }
+
+            g2.setColor(i < p.bulletsLeft ? Color.YELLOW : Color.GRAY);
+            g2.fillRect(drawX, by, bs, bs);
 
             g2.setColor(Color.WHITE);
-
-            g2.drawRect(x + i * (bs + sp), by, bs, bs);
+            g2.drawRect(drawX, by, bs, bs);
         }
 
         int cy = by + 35;
@@ -187,7 +238,11 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         g2.drawRect(x, cy, w, 12);
     }
 
-    @Override public void keyPressed(KeyEvent e) {
+    // ============================================
+    // INPUT
+    // ============================================
+    @Override
+    public void keyPressed(KeyEvent e) {
 
         int c = e.getKeyCode();
 
@@ -198,9 +253,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
         if (c == KeyEvent.VK_SPACE) {
             Bullet b = player1.shoot(paused);
-            if(!paused){
-                if (b != null) bullets.add(b);
-            }
+            if (!paused && b != null) bullets.add(b);
         }
 
         if (c == KeyEvent.VK_UP) player2.up = true;
@@ -210,9 +263,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
         if (c == KeyEvent.VK_NUMPAD0 || c == KeyEvent.VK_ENTER) {
             Bullet b = player2.shoot(paused);
-            if(!paused){
-            if (b != null) bullets.add(b);
-            }
+            if (!paused && b != null) bullets.add(b);
         }
 
         if (c == KeyEvent.VK_ESCAPE) {
@@ -220,7 +271,8 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         }
     }
 
-    @Override public void keyReleased(KeyEvent e) {
+    @Override
+    public void keyReleased(KeyEvent e) {
 
         int c = e.getKeyCode();
 
@@ -235,9 +287,14 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         if (c == KeyEvent.VK_RIGHT) player2.right = false;
     }
 
+    @Override
+    public void keyTyped(KeyEvent e) {}
+
+    // ============================================
+    // PAUSE SYSTEM
+    // ============================================
     public void togglePause() {
         paused = !paused;
         pauseMenu.setPaused(paused);
     }
-    @Override public void keyTyped(KeyEvent e) {}
 }

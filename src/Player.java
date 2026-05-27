@@ -19,8 +19,8 @@ public class Player {
     int maxHP = 100;
     int hp = 100;
 
-    int maxBullets = 8;
-    int bulletsLeft = 8;
+    int maxBullets = 10;
+    int bulletsLeft = 10;
 
     // ============================================
     // RELOAD SYSTEM
@@ -100,18 +100,31 @@ public class Player {
     // UPDATE PLAYER
     // ============================================
 
-    public void update(boolean paused) {
+    public void update(boolean paused, Rectangle divider) {
 
         // ============================================
         // MOVEMENT
         // ============================================
-        if (paused) return;
-        gameTime += 16; // approx 60 FPS
+        gameTime += 16;
+        int nextX = x;
+        int nextY = y;
 
-        if (up) y -= speed;
-        if (down) y += speed;
-        if (left) x -= speed;
-        if (right) x += speed;
+        if (up) nextY -= speed;
+        if (down) nextY += speed;
+        if (left) nextX -= speed;
+        if (right) nextX += speed;
+
+        Rectangle nextBounds = new Rectangle(
+                nextX + 34,
+                nextY + 30,
+                30,
+                60
+        );
+
+        if (!nextBounds.intersects(divider)) {
+            x = nextX;
+            y = nextY;
+        }
 
         // ============================================
         // SELECT CURRENT ANIMATION
@@ -264,6 +277,14 @@ public class Player {
                 height,
                 null
         );
+        // DEBUG HITBOX
+        //         g2.setColor(Color.RED);
+        //         g2.drawRect(
+        //         getBounds().x,
+        //         getBounds().y,
+        //         getBounds().width,
+        //         getBounds().height
+        // );
     }
 
     // ============================================
@@ -315,9 +336,9 @@ public class Player {
 
         return new Rectangle(
                 x + 34,
-                y + 38,
+                y + 30,
                 30,
-                48
+                60
         );
     }
 

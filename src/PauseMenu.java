@@ -3,7 +3,7 @@ import javax.swing.*;
 
 public class PauseMenu extends JPanel {
 
-    private boolean visibleState = false;
+    private final boolean visibleState = false;
 
     public PauseMenu(GamePanel gamePanel) {
 
@@ -34,5 +34,9 @@ public class PauseMenu extends JPanel {
 
     public void setPaused(boolean state) {
         setVisible(state);
+    }
+
+    public boolean isVisibleState() {
+        return visibleState;
     }
 }
