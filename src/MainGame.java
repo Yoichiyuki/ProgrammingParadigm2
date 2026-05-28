@@ -3,8 +3,8 @@ import javax.swing.*;
 
 public class MainGame extends JFrame {
 
-    private CardLayout cardLayout;
-    private JPanel mainContainer;
+    public CardLayout cardLayout;
+    public JPanel mainContainer;
 
     public MainGame() {
         setTitle("Senator Pew Pew Pew");
@@ -41,13 +41,17 @@ public class MainGame extends JFrame {
     }
 
     // START GAME
-    public void start(String mapPath, CharacterSprites p1, CharacterSprites p2) {
-        GamePanel gamePanel = new GamePanel(mapPath, p1, p2);
+    public void start(String mapPath, CharacterSprites p1, CharacterSprites p2, boolean p1FlipShoot, boolean p2FlipShoot) {
+        GamePanel gamePanel = new GamePanel(this, mapPath, p1, p2, p1FlipShoot, p2FlipShoot);
         mainContainer.add(gamePanel, "GAME");
         cardLayout.show(mainContainer, "GAME");
 
         gamePanel.requestFocusInWindow();
         gamePanel.startGameThread();
+    }
+
+    public void returnToMenu() {
+    cardLayout.show(mainContainer, "MAIN_MENU");
     }
 
     public static void main(String[] args) {

@@ -45,19 +45,29 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     SoundManager soundManager = new SoundManager();
 
     // ============================================
+    // TUTORIAL LABELS
+    // ============================================
+    JLabel leftTutorialLabel;
+    JLabel rightTutorialLabel;
+
+    // ============================================
     // BULLETS
     // ============================================
     ArrayList<Bullet> bullets = new ArrayList<>();
+
+    MainGame mainGame;
+    GameOverPanel gameOverPanel;
 
     // ============================================
     // CONSTRUCTOR
     // ============================================
     public GamePanel(
+            MainGame mainGame,
             String mapPath,
             CharacterSprites player1Sprites,
-            CharacterSprites player2Sprites
+            CharacterSprites player2Sprites,boolean p1FlipShoot, boolean p2FlipShoot
     ) {
-
+        this.mainGame = mainGame;
         setLayout(null);
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setBackground(Color.BLACK);
@@ -66,14 +76,75 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
         backgroundImage = new ImageIcon(mapPath).getImage();
 
+        // ============================================
+        // TUTORIAL IMAGES
+        // ============================================
+
+        // LEFT SIDE CONTROLS
+        leftTutorialLabel = new JLabel();
+        leftTutorialLabel.setIcon(
+                new ImageIcon("assets/tutorials/p1controls.png")
+        );
+
+        // size
+        leftTutorialLabel.setSize(330, 200);
+
+        // position (bottom-left)
+        leftTutorialLabel.setLocation(10, HEIGHT - 260);
+
+        // RIGHT SIDE CONTROLS
+        rightTutorialLabel = new JLabel();
+        rightTutorialLabel.setIcon(
+                new ImageIcon("assets/tutorials/p2controls.png")
+        );
+
+        // size
+        rightTutorialLabel.setSize(330, 200);
+
+        // position (bottom-right)
+        rightTutorialLabel.setLocation(WIDTH - 356, HEIGHT - 260);
+
+        // add to panel
+        add(leftTutorialLabel);
+        add(rightTutorialLabel);
+
+        // ============================================
+        // HIDE TUTORIAL AFTER 5 SECONDS
+        // ============================================
+
+        Timer tutorialTimer = new Timer(5000, e -> {
+
+            leftTutorialLabel.setVisible(false);
+            rightTutorialLabel.setVisible(false);
+
+        });
+
+        tutorialTimer.setRepeats(false);
+        tutorialTimer.start();
+
         // divider (middle wall)
         divider = new Rectangle(WIDTH / 2 - 5, 0, 10, HEIGHT);
         // top barrier (for maps with upper walls)
         topBarrier = new Rectangle(0, 0, WIDTH, 100);
 
         // players
-        player1 = new Player(100, 300, Color.BLUE, 1, player1Sprites);
-        player2 = new Player(600, 300, Color.RED, -1, player2Sprites);
+player1 = new Player(
+        100,
+        300,
+        Color.BLUE,
+        1,
+        player1Sprites,
+        p1FlipShoot
+);
+
+player2 = new Player(
+        600,
+        300,
+        Color.RED,
+        -1,
+        player2Sprites,
+        p2FlipShoot
+);
 
         soundManager.loop("assets/sounds/circusMusic.wav");
 
@@ -82,6 +153,8 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         pauseMenu.setBounds(0, 0, WIDTH, HEIGHT);
         pauseMenu.setVisible(false);
         add(pauseMenu);
+        
+        setComponentZOrder(pauseMenu, 0);
 
         SwingUtilities.invokeLater(this::requestFocusInWindow);
     }
@@ -147,7 +220,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         // win conditions
         if (player1.hp <= 0) {
             gameOver = true;
-            winnerText = "PLAYER 1 LOST!";
+            triggerGameOver();
             soundManager.stop();
             soundManager.play("assets/sounds/lordnabahala2.wav");
             gameOver = true;
@@ -155,7 +228,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
         if (player2.hp <= 0) {
             gameOver = true;
-            winnerText = "PLAYER 2 LOST!";
+            triggerGameOver();
             soundManager.stop();
             soundManager.play("assets/sounds/lordnabahala2.wav");
             gameOver = true;
@@ -175,8 +248,8 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         g2.drawImage(backgroundImage, 0, 0, WIDTH, HEIGHT, null);
 
         // divider
-        g2.setColor(Color.GRAY);
-        g2.fillRect(WIDTH / 2 - 5, 0, 10, HEIGHT);
+       // g2.setColor(Color.GRAY);
+        //g2.fillRect(WIDTH / 2 - 5, 0, 10, HEIGHT);
 
         // players
         player1.draw(g2);
@@ -306,6 +379,20 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {}
+
+    public void triggerGameOver() {
+
+    gameThread = null; // stop loop
+
+    GameOverPanel gameOverPanel = new GameOverPanel(mainGame);
+    mainGame.mainContainer.add(gameOverPanel, "GAME_OVER");
+
+    mainGame.cardLayout.show(mainGame.mainContainer, "GAME_OVER");
+
+    gameOverPanel.triggerGameOver(
+            player1.hp <= 0 ? "player1" : "player2"
+    );
+}
 
     // ============================================
     // GAME CONTROL

@@ -1,0 +1,260 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam theme plain
+
+' ========================================================
+' CLASSES DEFINITIONS
+' ========================================================
+
+class MainGame extends javax.swing.JFrame {
+    + cardLayout : CardLayout
+    + mainContainer : JPanel
+    + MainGame()
+    + goToMapSelection() : void
+    + goToCharacterSelection(selectedMapPath : String) : void
+    + start(mapPath : String, p1 : CharacterSprites, p2 : CharacterSprites, p1FlipShoot : boolean, p2FlipShoot : boolean) : void
+    + returnToMenu() : void
+    + {static} main(args : String[]) : void
+}
+
+class MainMenu extends javax.swing.JPanel implements java.awt.event.ActionListener {
+    ~ mainGame : MainGame
+    ~ background : Image
+    ~ titleLabel : JLabel
+    ~ playButton : JButton
+    ~ settingsButton : JButton
+    ~ creditsButton : JButton
+    ~ quitButton : JButton
+    + MainMenu(mainGame : MainGame)
+    # paintComponent(g : Graphics) : void
+    + actionPerformed(e : ActionEvent) : void
+}
+
+class chooseMap extends javax.swing.JPanel {
+    private mainDisplay : MainDisplayPanel
+    private mainGame : MainGame
+    + chooseMap(mainGame : MainGame)
+    private {static} drawProportionalImage(g2d : Graphics2D, image : BufferedImage, panelWidth : int, panelHeight : int) : void
+}
+
+class MainDisplayPanel extends javax.swing.JPanel {
+    private currentMapName : String
+    private currentMapImage : BufferedImage
+    + MainDisplayPanel()
+    + updateDisplay(name : String, imagePath : String) : void
+    # paintComponent(g : Graphics) : void
+}
+
+class MapThumbnail extends javax.swing.JPanel {
+    private mapName : String
+    private imagePath : String
+    private thumbImage : BufferedImage
+    private isHovered : boolean
+    + MapThumbnail(mapName : String, imagePath : String)
+    # paintComponent(g : Graphics) : void
+}
+
+class ChooseChar extends javax.swing.JPanel implements java.awt.event.ActionListener {
+    ~ mainGame : MainGame
+    ~ soundManager : SoundManager
+    ~ selectedMapPath : String
+    ~ titleLabel : JLabel
+    ~ player1Label : JLabel
+    ~ player2Label : JLabel
+    ~ batoButton1 : JToggleButton
+    ~ trillButton1 : JToggleButton
+    ~ batoButton2 : JToggleButton
+    ~ trillButton2 : JToggleButton
+    ~ startButton : JButton
+    ~ bato : CharacterSprites
+    ~ trill : CharacterSprites
+    ~ player1Choice : CharacterSprites
+    ~ player2Choice : CharacterSprites
+    + ChooseChar(mainGame : MainGame, mapPath : String)
+    + actionPerformed(e : ActionEvent) : void
+    + loadCharacters() : void
+}
+
+class GamePanel extends javax.swing.JPanel implements java.lang.Runnable, java.awt.event.KeyListener {
+    ~ pauseMenu : PauseMenu
+    ~ paused : boolean
+    ~ gameOver : boolean
+    ~ winnerText : String
+    ~ backgroundImage : Image
+    ~ WIDTH : int
+    ~ HEIGHT : int
+    ~ gameThread : Thread
+    ~ HUD_TOP_MARGIN : int
+    ~ divider : Rectangle
+    ~ topBarrier : Rectangle
+    ~ player1 : Player
+    ~ player2 : Player
+    ~ soundManager : SoundManager
+    ~ leftTutorialLabel : JLabel
+    ~ rightTutorialLabel : JLabel
+    ~ bullets : ArrayList<Bullet>
+    ~ mainGame : MainGame
+    ~ gameOverPanel : GameOverPanel
+    + GamePanel(mainGame : MainGame, mapPath : String, player1Sprites : CharacterSprites, player2Sprites : CharacterSprites, p1FlipShoot : boolean, p2FlipShoot : boolean)
+    + startGameThread() : void
+    + run() : void
+    + update(paused : boolean) : void
+    # paintComponent(g : Graphics) : void
+    + drawHUD(g2 : Graphics2D, p : Player, x : int, y : int, flipped : boolean) : void
+    + keyPressed(e : KeyEvent) : void
+    + keyReleased(e : KeyEvent) : void
+    + keyTyped(e : KeyEvent) : void
+    + triggerGameOver() : void
+    + restartGame() : void
+    + togglePause() : void
+}
+
+class PauseMenu extends javax.swing.JPanel {
+    + PauseMenu(gamePanel : GamePanel)
+    + setPaused(state : boolean) : void
+}
+
+class GameOverPanel extends javax.swing.JPanel {
+    private backgroundImage : BufferedImage
+    private bulletHoles : List<Point>
+    private random : Random
+    private customFont : Font
+    private mainGame : MainGame
+    private flashAlpha : int
+    private offsetX : int
+    private offsetY : int
+    + GameOverPanel(mainGame : MainGame)
+    + triggerGameOver(loser : String) : void
+    private spawnBulletHoles(min : int, max : int) : void
+    private fireGunshot() : void
+    # paintComponent(g : Graphics) : void
+}
+
+class RetroButton extends javax.swing.JButton {
+    private isHovered : boolean
+    private isPressed : boolean
+    private normalColor : Color
+    private hoverColor : Color
+    private shadow1 : Color
+    private shadow2 : Color
+    private hoverShadow1 : Color
+    private hoverShadow2 : Color
+    + RetroButton(text : String, font : Font)
+    # paintComponent(g : Graphics) : void
+}
+
+class Player {
+    ~ x : int
+    ~ y : int
+    ~ width : int
+    ~ height : int
+    ~ FRAME_WIDTH : int
+    ~ FRAME_HEIGHT : int
+    ~ speed : double
+    ~ color : Color
+    ~ maxHP : int
+    ~ hp : int
+    ~ maxBullets : int
+    ~ bulletsLeft : int
+    ~ gameTime : long
+    ~ cooldown : long
+    ~ lastReloadTime : long
+    ~ animationFrame : int
+    ~ animationCounter : int
+    ~ shootTimer : int
+    ~ sprites : CharacterSprites
+    ~ currentAnimation : BufferedImage
+    ~ previousAnimation : BufferedImage
+    ~ currentFrame : BufferedImage
+    ~ flipShootSprite : boolean
+    ~ shooting : boolean
+    ~ up : boolean
+    ~ down : boolean
+    ~ left : boolean
+    ~ right : boolean
+    ~ bulletDirection : int
+    + Player(x : int, y : int, color : Color, bulletDirection : int, sprites : CharacterSprites, flipShootSprite : boolean)
+    + update(paused : boolean, divider : Rectangle, HUD_TOP_MARGIN : int) : void
+    + draw(g2 : Graphics2D) : void
+    + shoot(paused : Boolean) : Bullet
+    + resetCooldown() : void
+    + getBounds() : Rectangle
+    + getCooldownPercent() : double
+}
+
+class Bullet {
+    ~ x : int
+    ~ y : int
+    ~ width : int
+    ~ height : int
+    ~ speed : int
+    ~ direction : int
+    ~ owner : Player
+    ~ active : boolean
+    + Bullet(x : int, y : int, direction : int, owner : Player)
+    + update(paused : boolean) : void
+    + draw(g2 : Graphics2D) : void
+    + getBounds() : Rectangle
+}
+
+class CharacterSprites {
+    ~ idle : BufferedImage
+    ~ walkDown : BufferedImage
+    ~ walkUp : BufferedImage
+    ~ walkLeft : BufferedImage
+    ~ walkRight : BufferedImage
+    ~ walkLeftDown : BufferedImage
+    ~ walkLeftUp : BufferedImage
+    ~ walkRightDown : BufferedImage
+    ~ walkRightUp : BufferedImage
+    ~ shootin : BufferedImage
+    + CharacterSprites(idle : BufferedImage, walkDown : BufferedImage, walkUp : BufferedImage, walkLeft : BufferedImage, walkRight : BufferedImage, walkLeftDown : BufferedImage, walkLeftUp : BufferedImage, walkRightDown : BufferedImage, walkRightUp : BufferedImage, shootin : BufferedImage, defaultFacingRight : boolean)
+}
+
+class SoundManager {
+    ~ musicClip : Clip
+    + play(path : String) : void
+    + loop(path : String) : void
+    + stop() : void
+}
+
+' ========================================================
+' RELATIONSHIPS & COUPLING
+' ========================================================
+
+MainGame "1" *-- "many" MainMenu : manages via CardLayout >
+MainGame "1" *-- "many" chooseMap : manages via CardLayout >
+MainGame "1" *-- "many" ChooseChar : manages/creates via CardLayout >
+MainGame "1" *-- "many" GamePanel : manages/creates via CardLayout >
+MainGame "1" *-- "many" GameOverPanel : manages/creates via CardLayout >
+
+MainMenu --> MainGame : triggers screen changes
+chooseMap --> MainGame : triggers screen changes
+ChooseChar --> MainGame : triggers game start
+
+' INNER CLASS RELATIONSHIPS (Fixed Structure)
+chooseMap +-- MainDisplayPanel
+chooseMap +-- MapThumbnail
+
+chooseMap "1" *-- "1" MainDisplayPanel : holds
+chooseMap "1" *-- "4" MapThumbnail : contains
+MapThumbnail --> MainDisplayPanel : updates on hover
+
+ChooseChar "1" *-- "1" SoundManager : sound alerts
+ChooseChar "1" *-- "4" CharacterSprites : references loaded options (bato, trill, choices)
+
+GamePanel "1" *-- "1" PauseMenu : overlays
+GamePanel "1" *-- "1" GameOverPanel : instantiates on wrap up
+GamePanel "1" *-- "2" Player : processes action loop (player1, player2)
+GamePanel "1" *-- "many" Bullet : tracks active elements
+GamePanel "1" *-- "1" SoundManager : background stream loop
+
+PauseMenu --> GamePanel : invokes control adjustments (togglePause, restartGame)
+GameOverPanel "1" *-- "many" RetroButton : UI styling elements
+GameOverPanel --> MainGame : route fallback selection loops
+
+Player "1" *-- "1" CharacterSprites : references structural frame map sets
+Player ..> Bullet : returns instantiated references via shoot()
+Bullet "many" o-- "1" Player : tracks entity authorship
+
+@enduml

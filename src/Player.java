@@ -45,8 +45,8 @@ public class Player {
     BufferedImage previousAnimation;
 
     BufferedImage currentFrame;
-
-    boolean shooting = false;
+    boolean flipShootSprite = false;
+    boolean shooting = false;   
 
     // ============================================
     // MOVEMENT FLAGS
@@ -72,7 +72,8 @@ public class Player {
             int y,
             Color color,
             int bulletDirection,
-            CharacterSprites sprites
+            CharacterSprites sprites,
+            boolean flipShootSprite
     ) {
 
         this.x = x;
@@ -81,6 +82,7 @@ public class Player {
         this.color = color;
 
         this.bulletDirection = bulletDirection;
+        this.flipShootSprite = flipShootSprite;
 
         this.sprites = sprites;
 
@@ -272,7 +274,21 @@ public class Player {
     // DRAW PLAYER
     // ============================================
 
-    public void draw(Graphics2D g2) {
+public void draw(Graphics2D g2) {
+
+    // ONLY flip shooting sprite if needed
+    if (shooting && flipShootSprite) {
+
+        g2.drawImage(
+                currentFrame,
+                x + width,
+                y,
+                -width,
+                height,
+                null
+        );
+
+    } else {
 
         g2.drawImage(
                 currentFrame,
@@ -282,15 +298,18 @@ public class Player {
                 height,
                 null
         );
-        // DEBUG HITBOX
-                g2.setColor(Color.RED);
-                g2.drawRect(
-                getBounds().x,
-                getBounds().y,
-                getBounds().width,
-                getBounds().height
-        );
     }
+
+    // DEBUG HITBOX
+    g2.setColor(Color.RED);
+
+    // g2.drawRect(
+    //         getBounds().x,
+    //         getBounds().y,
+    //         getBounds().width,
+    //         getBounds().height
+    // );
+}
 
     // ============================================
     // SHOOT BULLET

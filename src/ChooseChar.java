@@ -70,7 +70,13 @@ public class ChooseChar extends JPanel implements ActionListener {
         trillButton2.addActionListener(this);
 
         // START BUTTON
-        startButton = new JButton("START MATCH");
+        startButton = new JButton();
+        startButton.setIcon(new ImageIcon("assets/buttons/startMatch.png"));
+        startButton.setRolloverIcon(new ImageIcon("assets/buttons/startMatchHover.png"));
+        startButton.setBorderPainted(false);
+        startButton.setContentAreaFilled(false);
+        startButton.setFocusPainted(false);
+        startButton.setOpaque(false);
         startButton.setBounds(250, 470, 300, 60);
         startButton.setFont(new Font("Segoe UI", Font.BOLD, 24));
         startButton.setFocusable(false);
@@ -135,7 +141,26 @@ public class ChooseChar extends JPanel implements ActionListener {
                 return;
             }
             // 3. Call MainGame to launch the arena, passing the map and the characters!
-            mainGame.start(selectedMapPath, player1Choice, player2Choice);
+            boolean p1FlipShoot = false;
+boolean p2FlipShoot = false;
+
+// If Player 1 uses Trillanes
+if (player1Choice == trill) {
+    p1FlipShoot = true;
+}
+
+// If Player 2 uses Bato
+if (player2Choice == bato) {
+    p2FlipShoot = true;
+}
+
+mainGame.start(
+        selectedMapPath,
+        player1Choice,
+        player2Choice,
+        p1FlipShoot,
+        p2FlipShoot
+);
         }
     }
 
@@ -151,7 +176,7 @@ public class ChooseChar extends JPanel implements ActionListener {
                 ImageIO.read(new File("assets/Bato/bato-walk_Left_Up.png")),
                 ImageIO.read(new File("assets/Bato/bato-walk_Right_Down.png")),
                 ImageIO.read(new File("assets/Bato/bato-walk_Right_Up.png")),
-                ImageIO.read(new File("assets/Bato/bato-shoot.png"))
+                ImageIO.read(new File("assets/Bato/bato-shoot.png")), true
             );
 
             trill = new CharacterSprites(
@@ -164,7 +189,7 @@ public class ChooseChar extends JPanel implements ActionListener {
                 ImageIO.read(new File("assets/PlaceHolder/Walk_Left_Up.png")),
                 ImageIO.read(new File("assets/PlaceHolder/Walk_Right_Down.png")),
                 ImageIO.read(new File("assets/PlaceHolder/Walk_Right_Up.png")),
-                ImageIO.read(new File("assets/PlaceHolder/Walk_Left.png"))
+                ImageIO.read(new File("assets/PlaceHolder/Walk_Left.png")), false
             );
         } catch (Exception e) {
             e.printStackTrace();

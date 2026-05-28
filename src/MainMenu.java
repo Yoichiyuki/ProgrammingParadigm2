@@ -13,43 +13,49 @@ public class MainMenu extends JPanel implements ActionListener {
         this.mainGame = mainGame;
 
         setLayout(null);
-        background = new ImageIcon("assets/batoMenu.gif").getImage();
+        background = new ImageIcon("assets/background.gif").getImage();
 
-        System.out.println(background);
-        titleLabel = new JLabel("SENATORS PEW PEW PEW");
-        titleLabel.setBounds(200, 40, 400, 60);
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         int btnW = 220;
         int btnH = 60;
         int x = 50;
 
-        playButton = new JButton("PLAY");
-        playButton.setBounds(x, 150, btnW, btnH);
+        playButton = new JButton();
+        playButton.setIcon(new ImageIcon("assets/buttons/play.png"));
+        playButton.setRolloverIcon(new ImageIcon("assets/buttons/playpress.png"));
+        playButton.setBorderPainted(false);
+        playButton.setContentAreaFilled(false);
+        playButton.setFocusPainted(false);
+        playButton.setOpaque(false);
+        playButton.setBounds(x, 180, btnW, btnH);
         playButton.addActionListener(this);
 
-        settingsButton = new JButton("SETTINGS");
-        settingsButton.setBounds(x, 240, btnW, btnH);
-        settingsButton.addActionListener(this);
-
-        creditsButton = new JButton("CREDITS");
-        creditsButton.setBounds(x, 330, btnW, btnH);
+        creditsButton = new JButton();
+        creditsButton.setIcon(new ImageIcon("assets/buttons/credits1.png"));
+        creditsButton.setRolloverIcon(new ImageIcon("assets/buttons/hovecredits.png"));
+        creditsButton.setBorderPainted(false);
+        creditsButton.setContentAreaFilled(false);
+        creditsButton.setFocusPainted(false);
+        creditsButton.setOpaque(false);
+        creditsButton.setBounds(x, 270, btnW, btnH);
         creditsButton.addActionListener(this);
 
-        quitButton = new JButton("QUIT");
-        quitButton.setBounds(x, 420, btnW, btnH);
+        quitButton = new JButton();
+        quitButton.setIcon(new ImageIcon("assets/buttons/quit.png"));
+        quitButton.setRolloverIcon(new ImageIcon("assets/buttons/quitpress.png"));
+        quitButton.setBorderPainted(false);
+        quitButton.setContentAreaFilled(false);
+        quitButton.setFocusPainted(false);
+        quitButton.setOpaque(false);
+        quitButton.setBounds(x, 370, btnW, btnH);
         quitButton.addActionListener(this);
 
         playButton.setFocusable(false);
-        settingsButton.setFocusable(false);
         creditsButton.setFocusable(false);
         quitButton.setFocusable(false);
 
         
-        add(titleLabel);
         add(playButton);
-        add(settingsButton);
         add(creditsButton);
         add(quitButton);
 
@@ -83,6 +89,8 @@ public class MainMenu extends JPanel implements ActionListener {
 
         if (e.getSource() == creditsButton) {
             System.out.println("CREDITS");
+            GameCredits creditsScreen = new GameCredits();
+            creditsScreen.setVisible(true);
         }
 
         if (e.getSource() == quitButton) {
