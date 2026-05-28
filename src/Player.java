@@ -278,13 +278,13 @@ public class Player {
                 null
         );
         // DEBUG HITBOX
-        //         g2.setColor(Color.RED);
-        //         g2.drawRect(
-        //         getBounds().x,
-        //         getBounds().y,
-        //         getBounds().width,
-        //         getBounds().height
-        // );
+                g2.setColor(Color.RED);
+                g2.drawRect(
+                getBounds().x,
+                getBounds().y,
+                getBounds().width,
+                getBounds().height
+        );
     }
 
     // ============================================
