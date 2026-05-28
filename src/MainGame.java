@@ -1,5 +1,5 @@
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class MainGame extends JFrame {
 
@@ -8,7 +8,7 @@ public class MainGame extends JFrame {
 
     public MainGame() {
         setTitle("Senator Pew Pew Pew");
-        setSize(850, 650); // Using the slightly larger size to fit the map menu
+        setSize(800, 600); // Using the slightly larger size to fit the map menu
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
