@@ -1,43 +1,49 @@
 import javax.swing.*;
+import java.awt.*;
 
-public class MainGame {
+public class MainGame extends JFrame {
+
+    private CardLayout cardLayout;
+    private JPanel mainContainer;
 
     public MainGame() {
-        chooseChar();
+        setTitle("Senator Pew Pew Pew");
+        setSize(850, 650); // Using the slightly larger size to fit the map menu
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setResizable(false);
+
+        // Setup CardLayout
+        cardLayout = new CardLayout();
+        mainContainer = new JPanel(cardLayout);
+        add(mainContainer);
+
+        // Load the very first screen: Map Selection
+        mainContainer.add(new chooseMap(this), "MAP_SELECTION");
+
+        setVisible(true);
     }
 
-    public void start(
-            CharacterSprites player1Sprites,
-            CharacterSprites player2Sprites
-    ) {
+    // Called by chooseMap when a map is clicked
+    public void goToCharacterSelection(String selectedMapPath) {
+        ChooseChar charPanel = new ChooseChar(this, selectedMapPath);
+        mainContainer.add(charPanel, "CHAR_SELECTION");
+        cardLayout.show(mainContainer, "CHAR_SELECTION");
+    }
 
-        GamePanel gamePanel =
-                new GamePanel(player1Sprites, player2Sprites);
-
-        JFrame window = new JFrame();
-
-        window.setTitle("2 Player Arena Shooter");
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setResizable(false);
-
-        window.add(gamePanel);
-
-        window.pack();
-
-        window.setLocationRelativeTo(null);
-        window.setVisible(true);
-
+    // Called by ChooseChar when "START MATCH" is clicked
+    public void start(String mapPath, CharacterSprites p1, CharacterSprites p2) {
+        GamePanel gamePanel = new GamePanel(mapPath, p1, p2);
+        mainContainer.add(gamePanel, "GAME");
+        cardLayout.show(mainContainer, "GAME");
+        
+        // CRITICAL: We must request focus so the KeyListener works for player movement!
+        gamePanel.requestFocusInWindow(); 
+        
         gamePanel.startGameThread();
     }
 
-    public void chooseChar() {
-
-        ChooseChar chooseChar = new ChooseChar(this);
-
-        chooseChar.setVisible(true);
-    }
-
     public static void main(String[] args) {
-        new MainGame();
+        SwingUtilities.invokeLater(() -> new MainGame());
     }
 }
