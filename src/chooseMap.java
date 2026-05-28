@@ -1,4 +1,3 @@
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -6,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import javax.swing.*;
 
 // 1. Changed to extends JPanel
 public class chooseMap extends JPanel {
@@ -28,10 +28,10 @@ public class chooseMap extends JPanel {
         thumbnailContainer.setBackground(Color.DARK_GRAY);
 
         // 3. Updated paths to use your relative assets folder!
-        MapThumbnail map1 = new MapThumbnail("Senate Floor", "assets/4.png");
-        MapThumbnail map2 = new MapThumbnail("Malacañang", "assets/5.png");
-        MapThumbnail map3 = new MapThumbnail("ICC Exterior", "assets/6.png");
-        MapThumbnail map4 = new MapThumbnail("Divisoria", "assets/7.png");
+        MapThumbnail map1 = new MapThumbnail("Senate Floor", "assets/chooseMaps/4.png");
+        MapThumbnail map2 = new MapThumbnail("Malacañang", "assets/chooseMaps/5.png");
+        MapThumbnail map3 = new MapThumbnail("ICC Exterior", "assets/chooseMaps/6.png");
+        MapThumbnail map4 = new MapThumbnail("Divisoria", "assets/chooseMaps/7.png");
 
         thumbnailContainer.add(map1);
         thumbnailContainer.add(map2);
@@ -41,7 +41,7 @@ public class chooseMap extends JPanel {
         add(thumbnailContainer, BorderLayout.SOUTH);
         
         // Set initial map
-        mainDisplay.updateDisplay("Senate Floor", "assets/4.png");
+        mainDisplay.updateDisplay("Senate Floor", "assets/chooseMaps/4.png");
     }
 
     private static void drawProportionalImage(Graphics2D g2d, BufferedImage image, int panelWidth, int panelHeight) {

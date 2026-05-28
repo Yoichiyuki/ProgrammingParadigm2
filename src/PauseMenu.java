@@ -3,29 +3,29 @@ import javax.swing.*;
 
 public class PauseMenu extends JPanel {
 
-    private final boolean visibleState = false;
-
     public PauseMenu(GamePanel gamePanel) {
 
         setLayout(null);
-        setBounds(300, 200, 200, 200);
         setBackground(new Color(0, 0, 0, 180));
 
-        // Title
         JLabel label = new JLabel("PAUSED");
         label.setForeground(Color.WHITE);
-        label.setBounds(60, 20, 100, 30);
+        label.setFont(new Font("Arial", Font.BOLD, 40));
+        label.setBounds(330, 120, 200, 50);
         add(label);
 
-        // Resume button
         JButton resumeBtn = new JButton("Resume");
-        resumeBtn.setBounds(40, 70, 120, 30);
+        resumeBtn.setBounds(320, 200, 140, 40);
         resumeBtn.addActionListener(e -> gamePanel.togglePause());
         add(resumeBtn);
 
-        // Quit button
+        JButton restartBtn = new JButton("Restart");
+        restartBtn.setBounds(320, 260, 140, 40);
+        restartBtn.addActionListener(e -> gamePanel.restartGame());
+        add(restartBtn);
+
         JButton quitBtn = new JButton("Quit");
-        quitBtn.setBounds(40, 110, 120, 30);
+        quitBtn.setBounds(320, 320, 140, 40);
         quitBtn.addActionListener(e -> System.exit(0));
         add(quitBtn);
 
@@ -34,9 +34,5 @@ public class PauseMenu extends JPanel {
 
     public void setPaused(boolean state) {
         setVisible(state);
-    }
-
-    public boolean isVisibleState() {
-        return visibleState;
     }
 }

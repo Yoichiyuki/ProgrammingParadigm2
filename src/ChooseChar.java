@@ -8,6 +8,7 @@ import javax.swing.*;
 public class ChooseChar extends JPanel implements ActionListener {
 
     MainGame mainGame;
+    SoundManager soundManager = new SoundManager();
     String selectedMapPath; // Store the map choice!
 
     // COMPONENTS
@@ -36,14 +37,15 @@ public class ChooseChar extends JPanel implements ActionListener {
         titleLabel.setBounds(0, 20, 800, 50);
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        // PLAYER LABELS
-        player1Label = new JLabel();
-        player1Label.setIcon(new ImageIcon("assets/player1.gif"));
-        player1Label.setBounds(74, 52, 250, 150);
+        // PLAYER LABELSaa
+        ImageIcon p1Icon = new ImageIcon("assets/selectChar/player1.gif");
+        ImageIcon p2Icon = new ImageIcon("assets/selectChar/player2.gif");
 
-        player2Label = new JLabel();
-        player2Label.setIcon(new ImageIcon("assets/player2.gif"));  
-        player2Label.setBounds(480, 52, 250, 150);
+       player1Label = new JLabel(p1Icon);
+        player2Label = new JLabel(p2Icon);
+
+        player1Label.setBounds(74, 52, 250, 150);
+        player2Label.setBounds(480, 52, 250, 150); 
 
         // PLAYER 1 BUTTONS
         batoButton1 = new JToggleButton();
@@ -83,12 +85,14 @@ public class ChooseChar extends JPanel implements ActionListener {
         add(batoButton2);
         add(trillButton2);
         add(startButton);
+
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         // PLAYER 1
         if (e.getSource() == batoButton1) {
+            soundManager.play("assets/sounds/runforyourlife2.wav");
             trillButton1.setIcon(new ImageIcon("assets/selectChar/trillSelect.png"));
             player1Choice = bato;
             batoButton1.setSelected(true);
@@ -97,6 +101,7 @@ public class ChooseChar extends JPanel implements ActionListener {
         }
 
         if (e.getSource() == trillButton1) {
+            soundManager.play("assets/sounds/trillchoose2.wav");
             batoButton1.setIcon(new ImageIcon("assets/selectChar/batoSelect.png"));
             player1Choice = trill;
             trillButton1.setSelected(true);
@@ -106,6 +111,7 @@ public class ChooseChar extends JPanel implements ActionListener {
 
         // PLAYER 2
         if (e.getSource() == batoButton2) {
+            soundManager.play("assets/sounds/runforyourlife2.wav");
             trillButton2.setIcon(new ImageIcon("assets/selectChar/trillSelect.png"));
             player2Choice = bato;
             batoButton2.setSelected(true);
@@ -114,6 +120,7 @@ public class ChooseChar extends JPanel implements ActionListener {
         }
 
         if (e.getSource() == trillButton2) {
+            soundManager.play("assets/sounds/trillchoose2.wav");
             batoButton2.setIcon(new ImageIcon("assets/selectChar/batoSelect.png"));
             player2Choice = trill;
             trillButton2.setSelected(true);

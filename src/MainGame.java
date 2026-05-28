@@ -8,42 +8,49 @@ public class MainGame extends JFrame {
 
     public MainGame() {
         setTitle("Senator Pew Pew Pew");
-        setSize(800, 600); // Using the slightly larger size to fit the map menu
+        setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
 
-        // Setup CardLayout
         cardLayout = new CardLayout();
         mainContainer = new JPanel(cardLayout);
         add(mainContainer);
 
-        // Load the very first screen: Map Selection
+        // =========================
+        // SCREENS (ALL PANELS)
+        // =========================
+        mainContainer.add(new MainMenu(this), "MAIN_MENU");
         mainContainer.add(new chooseMap(this), "MAP_SELECTION");
+
+        cardLayout.show(mainContainer, "MAIN_MENU");
 
         setVisible(true);
     }
 
-    // Called by chooseMap when a map is clicked
+    // FROM MAIN MENU → MAP
+    public void goToMapSelection() {
+        cardLayout.show(mainContainer, "MAP_SELECTION");
+    }
+
+    // MAP → CHAR SELECT
     public void goToCharacterSelection(String selectedMapPath) {
         ChooseChar charPanel = new ChooseChar(this, selectedMapPath);
         mainContainer.add(charPanel, "CHAR_SELECTION");
         cardLayout.show(mainContainer, "CHAR_SELECTION");
     }
 
-    // Called by ChooseChar when "START MATCH" is clicked
+    // START GAME
     public void start(String mapPath, CharacterSprites p1, CharacterSprites p2) {
         GamePanel gamePanel = new GamePanel(mapPath, p1, p2);
         mainContainer.add(gamePanel, "GAME");
         cardLayout.show(mainContainer, "GAME");
-        
-        // CRITICAL: We must request focus so the KeyListener works for player movement!
-        gamePanel.requestFocusInWindow(); 
-        
+
+        gamePanel.requestFocusInWindow();
         gamePanel.startGameThread();
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new MainGame());
+        SwingUtilities.invokeLater(MainGame::new);
     }
 }

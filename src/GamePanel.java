@@ -22,23 +22,31 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     final int HEIGHT = 600;
 
     // ============================================
-    // THREAD
+    // GAME LOOP THREAD
     // ============================================
     Thread gameThread;
 
     // ============================================
-    // MAP
+    // MAP / COLLISION
     // ============================================
+    final int HUD_TOP_MARGIN = 80;
     Rectangle divider;
+    Rectangle topBarrier;
 
     // ============================================
-    // ENTITIES
+    // PLAYERS
     // ============================================
     Player player1;
     Player player2;
 
+    // ============================================
+    // AUDIO
+    // ============================================
     SoundManager soundManager = new SoundManager();
 
+    // ============================================
+    // BULLETS
+    // ============================================
     ArrayList<Bullet> bullets = new ArrayList<>();
 
     // ============================================
@@ -50,96 +58,80 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
             CharacterSprites player2Sprites
     ) {
 
-        pauseMenu = new PauseMenu(this);
+        setLayout(null);
+        setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        setBackground(Color.BLACK);
+        setFocusable(true);
+        addKeyListener(this);
 
-        this.setLayout(null);
-        this.add(pauseMenu);
-
-        this.setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        this.setBackground(Color.BLACK);
-        this.setFocusable(true);
-
-        this.addKeyListener(this);
-
-        divider = new Rectangle(
-                WIDTH / 2 - 5,
-                0,
-                10,
-                HEIGHT
-        );
-
-        // Uses the map selected from the previous screen!
         backgroundImage = new ImageIcon(mapPath).getImage();
 
-        player1 = new Player(
-                100,
-                300,
-                Color.BLUE,
-                1,
-                player1Sprites
-        );
+        // divider (middle wall)
+        divider = new Rectangle(WIDTH / 2 - 5, 0, 10, HEIGHT);
+        // top barrier (for maps with upper walls)
+        topBarrier = new Rectangle(0, 0, WIDTH, 100);
 
-        player2 = new Player(
-                600,
-                300,
-                Color.RED,
-                -1,
-                player2Sprites
-        );
+        // players
+        player1 = new Player(100, 300, Color.BLUE, 1, player1Sprites);
+        player2 = new Player(600, 300, Color.RED, -1, player2Sprites);
+
+        soundManager.loop("assets/sounds/circusMusic.wav");
+
+        // pause menu overlay
+        pauseMenu = new PauseMenu(this);
+        pauseMenu.setBounds(0, 0, WIDTH, HEIGHT);
+        pauseMenu.setVisible(false);
+        add(pauseMenu);
+
+        SwingUtilities.invokeLater(this::requestFocusInWindow);
     }
 
     // ============================================
-    // GAME LOOP START
+    // START GAME LOOP
     // ============================================
     public void startGameThread() {
-
         gameThread = new Thread(this);
-
         gameThread.start();
     }
 
     @Override
     public void run() {
-
         while (gameThread != null) {
-
             update(paused);
-
             repaint();
 
             try {
-
                 Thread.sleep(16);
-
             } catch (InterruptedException e) {
-
                 e.printStackTrace();
             }
         }
     }
 
     // ============================================
-    // UPDATE GAME STATE
+    // UPDATE GAME LOGIC
     // ============================================
     public void update(boolean paused) {
 
         if (gameOver || paused) return;
 
-        player1.update(paused, divider);
-        player2.update(paused, divider);
+        player1.update(paused, divider, HUD_TOP_MARGIN);
+        player2.update(paused, divider, HUD_TOP_MARGIN);
 
+        // bullet system
         for (int i = 0; i < bullets.size(); i++) {
 
             Bullet b = bullets.get(i);
-
             b.update(paused);
 
+            // collision: player1
             if (b.owner != player1 && b.getBounds().intersects(player1.getBounds())) {
                 player1.hp -= 10;
                 soundManager.play("assets/sounds/ouch.wav");
                 b.active = false;
             }
-            
+
+            // collision: player2
             if (b.owner != player2 && b.getBounds().intersects(player2.getBounds())) {
                 player2.hp -= 10;
                 soundManager.play("assets/sounds/ouch.wav");
@@ -152,55 +144,54 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
             }
         }
 
+        // win conditions
         if (player1.hp <= 0) {
             gameOver = true;
-            winnerText = "PLAYER 2 WINS!";
+            winnerText = "PLAYER 1 LOST!";
+            soundManager.stop();
+            soundManager.play("assets/sounds/lordnabahala2.wav");
+            gameOver = true;
         }
 
         if (player2.hp <= 0) {
             gameOver = true;
-            winnerText = "PLAYER 1 WINS!";
+            winnerText = "PLAYER 2 LOST!";
+            soundManager.stop();
+            soundManager.play("assets/sounds/lordnabahala2.wav");
+            gameOver = true;
         }
     }
 
     // ============================================
-    // RENDER
+    // RENDERING
     // ============================================
     @Override
     protected void paintComponent(Graphics g) {
 
         super.paintComponent(g);
-
         Graphics2D g2 = (Graphics2D) g;
 
-        g2.drawImage(
-                backgroundImage,
-                0,
-                0,
-                WIDTH,
-                HEIGHT,
-                null
-        );
+        // background
+        g2.drawImage(backgroundImage, 0, 0, WIDTH, HEIGHT, null);
 
+        // divider
         g2.setColor(Color.GRAY);
+        g2.fillRect(WIDTH / 2 - 5, 0, 10, HEIGHT);
 
-        g2.fillRect(
-                WIDTH / 2 - 5,
-                0,
-                10,
-                HEIGHT
-        );
-
+        // players
         player1.draw(g2);
         player2.draw(g2);
 
+        // bullets
         for (Bullet b : bullets) {
             b.draw(g2);
         }
 
+        // HUD
         drawHUD(g2, player1, 20, 20, false);
-        drawHUD(g2, player2, WIDTH - 20 - 260, 20, true);
+        drawHUD(g2, player2, WIDTH - 280, 20, true);
 
+        // game over text
         if (gameOver) {
             g2.setColor(Color.WHITE);
             g2.setFont(new Font("Arial", Font.BOLD, 40));
@@ -209,7 +200,7 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     }
 
     // ============================================
-    // HUD
+    // HUD (HEALTH, AMMO, COOLDOWN)
     // ============================================
     public void drawHUD(Graphics2D g2, Player p, int x, int y, boolean flipped) {
 
@@ -226,29 +217,27 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         g2.setColor(Color.WHITE);
         g2.drawRect(x, y, w, h);
 
-        // BULLETS
+        // AMMO BAR
         int by = y + 30;
         int bs = 18;
         int sp = 8;
 
         for (int i = 0; i < p.maxBullets; i++) {
-            int drawX;
-            if (!flipped) {
-                drawX = x + i * (bs + sp);
-            } else {
-                drawX = x + (p.maxBullets - 1 - i) * (bs + sp);
-            }
+
+            int drawX = flipped
+                    ? x + (p.maxBullets - 1 - i) * (bs + sp)
+                    : x + i * (bs + sp);
 
             g2.setColor(i < p.bulletsLeft ? Color.YELLOW : Color.GRAY);
             g2.fillRect(drawX, by, bs, bs);
-            
+
             g2.setColor(Color.WHITE);
             g2.drawRect(drawX, by, bs, bs);
         }
 
-        // COOLDOWN
+        // COOLDOWN BAR
         int cy = by + 35;
-        
+
         g2.setColor(Color.DARK_GRAY);
         g2.fillRect(x, cy, w, 12);
 
@@ -260,45 +249,41 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     }
 
     // ============================================
-    // INPUT
+    // INPUT HANDLING
     // ============================================
     @Override
     public void keyPressed(KeyEvent e) {
 
         int c = e.getKeyCode();
 
-        // PLAYER 1
+        // PLAYER 1 MOVEMENT
         if (c == KeyEvent.VK_W) player1.up = true;
         if (c == KeyEvent.VK_S) player1.down = true;
         if (c == KeyEvent.VK_A) player1.left = true;
         if (c == KeyEvent.VK_D) player1.right = true;
 
+        // PLAYER 1 SHOOT
         if (c == KeyEvent.VK_SPACE) {
             Bullet b = player1.shoot(paused);
-            if (!paused && b != null) {
-                bullets.add(b);
-                soundManager.play("assets/sounds/gunshot.wav");
-            }
+            if (!paused && b != null) bullets.add(b);
+            if (b != null) soundManager.play("assets/sounds/gunshot.wav");
         }
-        
-        // PLAYER 2
+
+        // PLAYER 2 MOVEMENT
         if (c == KeyEvent.VK_UP) player2.up = true;
         if (c == KeyEvent.VK_DOWN) player2.down = true;
         if (c == KeyEvent.VK_LEFT) player2.left = true;
         if (c == KeyEvent.VK_RIGHT) player2.right = true;
 
-        if (c == KeyEvent.VK_NUMPAD0 || c == KeyEvent.VK_ENTER) {
+        // PLAYER 2 SHOOT
+        if (c == KeyEvent.VK_ENTER || c == KeyEvent.VK_NUMPAD0) {
             Bullet b = player2.shoot(paused);
-            if (!paused && b != null) {
-                bullets.add(b);
-                soundManager.play("assets/sounds/gunshot.wav");
-            }
+            if (!paused && b != null) bullets.add(b);
+            if (b != null) soundManager.play("assets/sounds/gunshot.wav");
         }
-        
+
         // PAUSE
-        if (c == KeyEvent.VK_ESCAPE) {
-            togglePause();
-        }
+        if (c == KeyEvent.VK_ESCAPE) togglePause();
     }
 
     @Override
@@ -306,11 +291,13 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
         int c = e.getKeyCode();
 
+        // PLAYER 1 STOP
         if (c == KeyEvent.VK_W) player1.up = false;
         if (c == KeyEvent.VK_S) player1.down = false;
         if (c == KeyEvent.VK_A) player1.left = false;
         if (c == KeyEvent.VK_D) player1.right = false;
 
+        // PLAYER 2 STOP
         if (c == KeyEvent.VK_UP) player2.up = false;
         if (c == KeyEvent.VK_DOWN) player2.down = false;
         if (c == KeyEvent.VK_LEFT) player2.left = false;
@@ -321,10 +308,44 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     public void keyTyped(KeyEvent e) {}
 
     // ============================================
-    // PAUSE SYSTEM
+    // GAME CONTROL
     // ============================================
+    public void restartGame() {
+        player1.hp = player1.maxHP;
+        player2.hp = player2.maxHP;
+
+        player1.x = 100;
+        player1.y = 300;
+
+        player2.x = 600;
+        player2.y = 300;
+
+        player1.bulletsLeft = player1.maxBullets;
+        player2.bulletsLeft = player2.maxBullets;
+
+        player1.resetCooldown();
+        player2.resetCooldown();
+
+        bullets.clear();
+
+        gameOver = false;
+        paused = false;
+
+        pauseMenu.setVisible(false);
+
+        requestFocusInWindow();
+    }
+
     public void togglePause() {
         paused = !paused;
-        pauseMenu.setPaused(paused);
+        pauseMenu.setVisible(paused);
+        requestFocusInWindow();
+
+        if(paused) {
+            soundManager.stop();
+        } else {
+            soundManager.loop("assets/sounds/circusMusic.wav");
+        }
+
     }
 }

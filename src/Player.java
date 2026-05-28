@@ -100,7 +100,7 @@ public class Player {
     // UPDATE PLAYER
     // ============================================
 
-    public void update(boolean paused, Rectangle divider) {
+    public void update(boolean paused, Rectangle divider, int HUD_TOP_MARGIN) {
 
         // ============================================
         // MOVEMENT
@@ -113,6 +113,11 @@ public class Player {
         if (down) nextY += speed;
         if (left) nextX -= speed;
         if (right) nextX += speed;
+        
+        // TOP BARRIER (HUD SAFE ZONE)
+        if (nextY < HUD_TOP_MARGIN) {
+            nextY = HUD_TOP_MARGIN;
+        }
 
         Rectangle nextBounds = new Rectangle(
                 nextX + 34,
@@ -193,12 +198,12 @@ public class Player {
         // SCREEN BOUNDARIES
         // ============================================
 
-        if (x < 0) {
-            x = 0;
+        if (x < -30) {
+            x = -30;
         }
 
-        if (x + width > 800) {
-            x = 800 - width;
+        if (x > 800 - 80) {
+            x = 800- 80;
         }
 
         if (y < 0) {
@@ -331,7 +336,9 @@ public class Player {
     // ============================================
     // PLAYER HITBOX
     // ============================================
-
+        public void resetCooldown() {
+            lastReloadTime = gameTime;
+        }
     public Rectangle getBounds() {
 
         return new Rectangle(
