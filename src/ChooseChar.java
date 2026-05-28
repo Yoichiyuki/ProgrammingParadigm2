@@ -137,7 +137,7 @@ public class ChooseChar extends JFrame implements ActionListener {
 
         batoButton1.setBounds(40, 150, 150, 260);
 
-       // batoButton1.setIcon(new ImageIcon("src/Bato.jpg"));
+        batoButton1.setIcon(new ImageIcon("assets/selectChar/batoSelect.png"));
 
         batoButton1.addActionListener(this);
 
@@ -145,7 +145,7 @@ public class ChooseChar extends JFrame implements ActionListener {
 
         trillButton1.setBounds(210, 150, 150, 260);
 
-        //trillButton1.setIcon(new ImageIcon("src/Trill.jpg"));
+        trillButton1.setIcon(new ImageIcon("assets/selectChar/trillSelect.png"));
 
         trillButton1.addActionListener(this);
 
@@ -156,7 +156,7 @@ public class ChooseChar extends JFrame implements ActionListener {
 
         batoButton2.setBounds(440, 150, 150, 260);
 
-       // batoButton2.setIcon(  new ImageIcon("src/Bato.jpg"));
+       batoButton2.setIcon(  new ImageIcon("assets/selectChar/batoSelect.png"));
 
         batoButton2.addActionListener(this);
 
@@ -164,7 +164,7 @@ public class ChooseChar extends JFrame implements ActionListener {
 
         trillButton2.setBounds(610, 150, 150, 260);
 
-      //  trillButton2.setIcon(  new ImageIcon("src/Trill.jpg"));
+        trillButton2.setIcon(  new ImageIcon("assets/selectChar/trillSelect.png"));
 
         trillButton2.addActionListener(this);
 
@@ -218,18 +218,20 @@ public class ChooseChar extends JFrame implements ActionListener {
         // PLAYER 1
         // ============================================
         if (e.getSource() == batoButton1) {
-
+            trillButton1.setIcon(new ImageIcon("assets/selectChar/trillSelect.png"));
             player1Choice = bato;
 
             batoButton1.setSelected(true);
+            batoButton1.setIcon(new ImageIcon("assets/selectChar/batoSelected.png"));
             trillButton1.setSelected(false);
         }
 
         if (e.getSource() == trillButton1) {
-
+            batoButton1.setIcon(new ImageIcon("assets/selectChar/batoSelect.png"));
             player1Choice = trill;
 
             trillButton1.setSelected(true);
+            trillButton1.setIcon(new ImageIcon("assets/selectChar/trillSelected.png"));   
             batoButton1.setSelected(false);
         }
 
@@ -237,18 +239,20 @@ public class ChooseChar extends JFrame implements ActionListener {
         // PLAYER 2
         // ============================================
         if (e.getSource() == batoButton2) {
-
+            trillButton2.setIcon(new ImageIcon("assets/selectChar/trillSelect.png"));
             player2Choice = bato;
 
             batoButton2.setSelected(true);
+            batoButton2.setIcon(new ImageIcon("assets/selectChar/batoSelected.png"));
             trillButton2.setSelected(false);
         }
 
         if (e.getSource() == trillButton2) {
-
+            batoButton2.setIcon(new ImageIcon("assets/selectChar/batoSelect.png"));
             player2Choice = trill;
 
             trillButton2.setSelected(true);
+            trillButton2.setIcon(new ImageIcon("assets/selectChar/trillSelected.png"));
             batoButton2.setSelected(false);
         }
 
@@ -300,16 +304,16 @@ public class ChooseChar extends JFrame implements ActionListener {
             );
 
             trill = new CharacterSprites(
-                ImageIO.read(new File("assets/PlaceHolder/idle.png")),
-                ImageIO.read(new File("assets/PlaceHolder/walk_Down.png")),
-                ImageIO.read(new File("assets/PlaceHolder/walk_Up.png")),
-                ImageIO.read(new File("assets/PlaceHolder/walk_Left.png")),
-                ImageIO.read(new File("assets/PlaceHolder/walk_Right.png")),
-                ImageIO.read(new File("assets/PlaceHolder/walk_Left_Down.png")),
-                ImageIO.read(new File("assets/PlaceHolder/walk_Left_Up.png")),
-                ImageIO.read(new File("assets/PlaceHolder/walk_Right_Down.png")),
-                ImageIO.read(new File("assets/PlaceHolder/walk_Right_Up.png")),
-                ImageIO.read(new File("assets/PlaceHolder/idle.png"))
+                ImageIO.read(new File("assets/PlaceHolder/Idle (1).png")),
+                ImageIO.read(new File("assets/PlaceHolder/Walk_Down.png")),
+                ImageIO.read(new File("assets/PlaceHolder/Walk_Up.png")),
+                ImageIO.read(new File("assets/PlaceHolder/Walk_Left.png")),
+                ImageIO.read(new File("assets/PlaceHolder/Walk_Right.png")),
+                ImageIO.read(new File("assets/PlaceHolder/Walk_Left_Down.png")),
+                ImageIO.read(new File("assets/PlaceHolder/Walk_Left_Up.png")),
+                ImageIO.read(new File("assets/PlaceHolder/Walk_Right_Down.png")),
+                ImageIO.read(new File("assets/PlaceHolder/Walk_Right_Up.png")),
+                ImageIO.read(new File("assets/PlaceHolder/Walk_Left.png"))
             );
 
         } catch (Exception e) {

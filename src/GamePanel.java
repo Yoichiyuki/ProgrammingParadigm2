@@ -37,6 +37,8 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
     Player player1;
     Player player2;
 
+    SoundManager soundManager = new SoundManager();
+
     ArrayList<Bullet> bullets = new ArrayList<>();
 
     // ============================================
@@ -132,24 +134,31 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
             b.update(paused);
 
             if (
-                    b.owner != player1 &&
-                    b.getBounds().intersects(player1.getBounds())
-            ) {
+        b.owner != player1 &&
+        b.getBounds().intersects(player1.getBounds())
+) {
 
-                player1.hp -= 10;
+    player1.hp -= 10;
 
-                b.active = false;
-            }
+    soundManager.play(
+            "assets/sounds/ouch.wav"
+    );
 
-            if (
-                    b.owner != player2 &&
-                    b.getBounds().intersects(player2.getBounds())
-            ) {
+    b.active = false;
+}
+           if (
+        b.owner != player2 &&
+        b.getBounds().intersects(player2.getBounds())
+) {
 
-                player2.hp -= 10;
+    player2.hp -= 10;
 
-                b.active = false;
-            }
+    soundManager.play(
+            "assets/sounds/ouch.wav"
+    );
+
+    b.active = false;
+}
 
             if (!b.active) {
 
@@ -347,14 +356,15 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
 
         if (c == KeyEvent.VK_SPACE) {
 
-            Bullet b = player1.shoot(paused);
+    Bullet b = player1.shoot(paused);
 
-            if (!paused && b != null) {
+    if (!paused && b != null) {
 
-                bullets.add(b);
-            }
-        }
+        bullets.add(b);
 
+        soundManager.play("assets/sounds/gunshot.wav");
+    }
+}
         // PLAYER 2
 
         if (c == KeyEvent.VK_UP) player2.up = true;
@@ -363,18 +373,19 @@ public class GamePanel extends JPanel implements Runnable, KeyListener {
         if (c == KeyEvent.VK_RIGHT) player2.right = true;
 
         if (
-                c == KeyEvent.VK_NUMPAD0 ||
-                c == KeyEvent.VK_ENTER
-        ) {
+        c == KeyEvent.VK_NUMPAD0 ||
+        c == KeyEvent.VK_ENTER
+) {
 
-            Bullet b = player2.shoot(paused);
+    Bullet b = player2.shoot(paused);
 
-            if (!paused && b != null) {
+    if (!paused && b != null) {
 
-                bullets.add(b);
-            }
-        }
+        bullets.add(b);
 
+        soundManager.play("assets/sounds/gunshot.wav");
+    }
+}
         // PAUSE
 
         if (c == KeyEvent.VK_ESCAPE) {
