@@ -33,7 +33,7 @@ public class PauseMenu extends JPanel {
         restartBtn.setBorderPainted(false);
         restartBtn.setContentAreaFilled(false);
         restartBtn.setFocusPainted(false);
-        restartBtn.addActionListener(e -> gamePanel.restartGame());
+        restartBtn.addActionListener(e -> gamePanel.toggleRestart());
         add(restartBtn);
 
         JButton quitBtn = new JButton("Quit");

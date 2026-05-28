@@ -398,6 +398,7 @@ player2 = new Player(
     // GAME CONTROL
     // ============================================
     public void restartGame() {
+
         player1.hp = player1.maxHP;
         player2.hp = player2.maxHP;
 
@@ -419,8 +420,22 @@ player2 = new Player(
         paused = false;
 
         pauseMenu.setVisible(false);
-
+        
         requestFocusInWindow();
+    }
+
+    public void toggleRestart(){
+    paused = false;
+
+    soundManager.stop();
+
+    restartGame();
+
+    soundManager.loop("assets/sounds/circusMusic.wav");
+
+    mainGame.cardLayout.show(mainGame.mainContainer, "GAME");
+
+    SwingUtilities.invokeLater(this::requestFocusInWindow);
     }
 
     public void togglePause() {
@@ -428,11 +443,10 @@ player2 = new Player(
         pauseMenu.setVisible(paused);
         requestFocusInWindow();
 
-        if(paused) {
+        if (paused) {
             soundManager.stop();
         } else {
             soundManager.loop("assets/sounds/circusMusic.wav");
         }
-
     }
 }
