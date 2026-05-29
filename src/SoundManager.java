@@ -18,7 +18,6 @@ public class SoundManager {
             Clip clip = AudioSystem.getClip();
 
             clip.open(audio);
-
             clip.start();
 
         } catch (Exception e) {
@@ -42,11 +41,8 @@ public class SoundManager {
                     );
 
             musicClip = AudioSystem.getClip();
-
             musicClip.open(audio);
-
             musicClip.loop(Clip.LOOP_CONTINUOUSLY);
-
             musicClip.start();
 
         } catch (Exception e) {
@@ -59,9 +55,7 @@ public class SoundManager {
     // STOP MUSIC
     // ============================================
     public void stop() {
-
         if (musicClip != null) {
-
             musicClip.stop();
         }
     }

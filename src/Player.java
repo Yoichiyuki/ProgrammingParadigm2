@@ -1,20 +1,13 @@
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class Player {
+public class Player extends Entity {
 
-    int x;
-    int y;
-
-    int width = 96;
-    int height = 128;
 
     final int FRAME_WIDTH = 48;
     final int FRAME_HEIGHT = 64;
 
     double speed = 3.75;
-
-    Color color;
 
     int maxHP = 100;
     int hp = 100;
@@ -76,10 +69,7 @@ public class Player {
             boolean flipShootSprite
     ) {
 
-        this.x = x;
-        this.y = y;
-
-        this.color = color;
+        super(x, y, 96, 128);
 
         this.bulletDirection = bulletDirection;
         this.flipShootSprite = flipShootSprite;
@@ -358,6 +348,7 @@ public void draw(Graphics2D g2) {
         public void resetCooldown() {
             lastReloadTime = gameTime;
         }
+    @Deprecated
     public Rectangle getBounds() {
 
         return new Rectangle(

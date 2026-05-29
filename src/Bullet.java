@@ -1,37 +1,31 @@
 import java.awt.*;
 
-public class Bullet {
+public class Bullet extends Entity {
 
-    int x;
-    int y;
-
-    int width = 12;
-    int height = 6;
+    // ============================================
+    // BULLET SETTINGS
+    // ============================================
 
     int speed = 10;
-
     int direction;
 
-    Player owner;
-
     boolean active = true;
+
+    // ============================================
+    // OWNER
+    // ============================================
+
+    Player owner;
 
     // ============================================
     // CONSTRUCTOR
     // ============================================
 
-    public Bullet(
-            int x,
-            int y,
-            int direction,
-            Player owner
-    ) {
+    public Bullet(int x, int y, int direction, Player owner) {
 
-        this.x = x - 40;
-        this.y = y - 20;
+        super(x - 40, y - 20, 12, 6);
 
         this.direction = direction;
-
         this.owner = owner;
     }
 
@@ -57,26 +51,6 @@ public class Bullet {
     public void draw(Graphics2D g2) {
 
         g2.setColor(Color.YELLOW);
-
-        g2.fillRect(
-                x,
-                y,
-                width,
-                height
-        );
-    }
-
-    // ============================================
-    // BULLET HITBOX
-    // ============================================
-
-    public Rectangle getBounds() {
-
-        return new Rectangle(
-                x,
-                y,
-                width,
-                height
-        );
+        g2.fillRect(x, y, width, height);
     }
 }
